@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src=" https://unpkg.com/leaflet@1.6.0/dist/leaflet.js "></script>
+    <link rel="stylesheet" href=" https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+
+    <title>Ejercicio 4</title>
+     <style>
+         #map {
+        width: 100%;
+        height: 580px;
+        box-shadow: 5px 5px 5px #888;
+        }
+
+     </style>
+     <!---GeoJson-->
+     <script type="text/javascript" src="Paises_GeoJson.js"></script>
+     <script type="text/javascript" src="ciudades.js"></script>
+     <script>
+         var countryStyle = {
+            'color': "#e12a2a",
+            'weight': 2,
+            'opacity': 0.6
+            };
+            //funcion asignadora de los colores segun el atributo d
+            function getColor(d) {
+             
+              return d == "Africa" ? 'green':
+                     d == "Oceania" ? 'purple':
+                     d == 'South America' ? 'yellow':
+                     d == "North America" ? 'blue':
+                     d == "Europe" ? 'orange':
+                     d=='Asia'  ? 'red': '';
+                                      
+                };
+                function getColorCity(d) {
+            if (d == "S") {
+                d = "YELLOW";
+            } else if (d == "N") {
+                d = "GREEN";
+            } else {
+                d = "WHITE";
+            }
+            return d;
+        };
+            //funcion para asignar los colores, importar abajo
+            function style(feature) {
+            return {
+            //acceder a el feature, propiedades, atributo poblacion
+            fillColor: getColor(feature.properties.continent),
+            weight: 2,
+            opacity: 1,
+            //color linea separadora en los paises
+            color: 'pink',
+            dashArray: '3',
+            fillOpacity: 0.7
+            };
+            }
+            function pointToLayer(feature, latlng) {
+            return L.circleMarker(latlng, {
+                // Stroke properties
+                color: 'BLACK',
+                opacity: 0.75,
+                weight: 4,
+
+                // Fill properties
+                fillColor: getColorCity(feature.properties.capital),
+                
+
+                radius: 3.2
+            });
+        }
+            //Para poner el popup a cada pais,importar abajo
+            function popup(feature, layer) {
+            
+            if (feature.properties && feature.properties.name) {
+                 //atributo a mostrar en el popup
+                 layer.bindPopup(feature.properties.name);
+            }
+            }
+             
+       
+         
+     </script>
+</head>
+<body>
+    
+
+    <div id= 'map'>
+
+    </div>
+
+    <script>
+        //L.tilelayer sirve para llamar capas de otro servidor
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+        + 'contributors',
+        maxZoom: 18
+        });
+        
+        //el 'map' es el id del div donde se mostrara el mapa
+        var map = L.map('map', {
+        //coordenadas decimanles donde se abrira el mapa
+        center: [41.66, -4.72],
+        //zona bastante grande
+        zoom: 3,
+        //llamo la capa base 
+        layers: osm,
+        //para con la ruedita del maouse acercarse o alejarse
+        scrollWheelZoom: false,
+        });
+        //-----GeoJson
+        //L.geoJson(countries).addTo(map);
+        L.geoJson(countries, {
+        //funcion de colores
+        style: style
+        }).addTo(map);
+
+        L.geoJson(ciudades,
+        {
+            pointToLayer: pointToLayer 
+            
+        }).addTo(map)
+        
+        //para agregar la funcion del popup al mapa
+        geojson = L.geoJson(countries, {
+                style: style,
+                onEachFeature: popup
+        }).addTo(map);
+
+        L.control.scale().addTo(map);
+    </script>
+</body>
+</html>
